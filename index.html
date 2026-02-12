@@ -472,7 +472,7 @@
     footer{ margin-top: 22px; padding: 10px 0 0; text-align:center; color: var(--muted); font-size: 14px; }
     .tiny{ font-size: 13px; color: var(--muted); margin-top: 10px; font-style: italic; }
 
-    /* Conejita flotante (SIEMPRE) */
+    /* Conejita flotante */
     .bunnyDock{
       position: fixed;
       right: max(8px, calc((100vw - var(--container)) / 2 + 8px));
@@ -607,23 +607,50 @@
     }
     .dust{ animation-duration: var(--dur); }
 
-    /* ✅ MÓVIL: coneja visible e integrada al hero (aprox 40% dentro) */
+    /* ✅ Ajuste móvil final:
+       - Coneja "40% dentro del hero" (percepción) moviéndola hacia abajo
+       - Label habilitado en móvil pero solo aparece cuando NO se ve el Valentina del hero
+       - Parallax sigue funcionando (JS intacto) */
     @media (max-width: 980px){
       .bunnyDock{
-        display: grid;   /* importante: NO ocultar */
+        display: grid;
         right: 12px;
-        top: 152px;      /* ajusta este valor si quieres más/menos “dentro” */
+        top: 152px;      /* baja respecto a "top:12px" para integrarla al hero */
         width: 150px;
       }
 
-      /* deja aire arriba para que no tape el Valentina del hero */
+      /* aire extra para que el Valentina del hero no choque con la coneja */
       .hero{ padding-top: 44px; }
 
-      /* en móvil ocultamos el label bajo la coneja para no tapar */
-      .bunnyLabel{ display:none; }
+      /* ✅ en móvil: el label existe, pero solo aparece con show-bunny-label */
+      .bunnyLabel{
+        display: block;
+        max-width: 160px;
+        margin-top: 2px;
+        padding: 2px 6px 4px;
+        border-radius: 14px;
+        background: rgba(255,255,255,.62);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 10px 22px rgba(0,0,0,.10);
+        opacity: 0;
+        transform: translateY(-2px) scale(.98);
+        pointer-events: none;
+      }
+      body.show-bunny-label .bunnyLabel{
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+
+      .valLabel .valentina{
+        font-size: 26px;
+        line-height: 1;
+      }
     }
+
     @media (max-width: 420px){
       .bunnyDock{ top: 162px; width: 138px; }
+      .bunnyLabel{ max-width: 145px; }
+      .valLabel .valentina{ font-size: 24px; }
     }
 
     .reveal{ opacity:0; transform: translateY(10px); transition: opacity .75s ease, transform .75s ease; }
@@ -643,7 +670,7 @@
 </head>
 
 <body>
-  <!-- Coneja flotante (SIEMPRE) -->
+  <!-- Coneja flotante -->
   <div class="bunnyDock" id="bunnyDock" aria-hidden="true">
     <img src="conejabebe.png" alt="Conejita con globos" />
     <div class="bunnyLabel valLabel" id="bunnyLabel">
@@ -915,29 +942,25 @@
       }
     });
 
-    // ✅ Parallax coneja (SIEMPRE: desktop + móvil)
+    // Parallax coneja (siempre visible)
     const bunnyDock = document.getElementById("bunnyDock");
     function bunnyParallax(){
       const y = window.scrollY || 0;
       const isMobile = window.matchMedia("(max-width: 980px)").matches;
-
-      const speed = isMobile ? 0.10 : 0.18;     // suave en móvil
-      const maxShift = isMobile ? 70 : 150;     // límite
+      const speed = 0.18;
+      const maxShift = isMobile ? 40 : 150;
       const shift = Math.min(maxShift, y * speed);
-
       bunnyDock.style.transform = `translateY(${-shift}px)`;
     }
     window.addEventListener("scroll", bunnyParallax, { passive:true });
     window.addEventListener("resize", bunnyParallax);
     bunnyParallax();
 
-    // Mostrar Valentina bajo coneja solo cuando NO se ve el Valentina del hero (desktop)
+    // Mostrar Valentina bajo coneja solo cuando NO se ve el Valentina del hero
     const heroVal = document.getElementById("heroValentina");
     const io = new IntersectionObserver((entries) => {
       for(const entry of entries){
         const visible = entry.isIntersecting && entry.intersectionRatio > 0.18;
-
-        // En móvil el label está oculto por CSS; igual mantenemos la lógica para desktop
         document.body.classList.toggle("show-bunny-label", !visible);
 
         if(!visible){
