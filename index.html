@@ -890,6 +890,93 @@ svg, img{
   }
 }
 
+
+/* ✅ Fix visibilidad memojis (PNG) en footer */
+/* ✅ Memoji completo dentro del círculo (sin borde) */
+.sigAvatars{
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Evitar que se "corten" por capas/overflow */
+footer{
+  position: relative;
+  z-index: 2;
+}
+
+/* Mantener en una línea en iPhone 15 */
+@media (max-width: 430px){
+  .signature{ padding: 0 6px; }
+}
+
+/* En pantallas MUY pequeñas, permitir salto controlado */
+@media (max-width: 330px){
+  .signature{
+    flex-wrap: wrap;
+    white-space: normal;
+    row-gap: 6px;
+  }
+}
+
+
+/* ✅ Memojis proporcionales (sin fondo, sin recorte) */
+.sigAvatars{
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+}
+
+.sigAvatars img{
+  height: 46px;        /* desktop */
+  width: auto;         /* proporcional */
+  max-width: 60px;
+  display: block;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+}
+
+/* Mobile */
+@media (max-width: 430px){
+  .sigAvatars{ gap: 8px; }
+  .sigAvatars img{
+    height: 34px;
+    max-width: 48px;
+  }
+}
+
+@media (max-width: 360px){
+  .sigAvatars img{ height: 32px; max-width: 44px; }
+}
+
+
+@media (max-width: 360px){
+  .sigAvatars img{ height: 32px; max-width: 44px; }
+}
+
+
+/* ✅ Firma en una sola línea (texto + memojis) */
+.signature{
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  white-space: nowrap;
+  text-align: center;
+}
+
+.signature span.text{
+  display: inline-block;
+}
+
+.signature .sigAvatars{
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
 </style>
 </head>
 
@@ -1136,14 +1223,14 @@ svg, img{
 
           
 <footer>
-  <div class="signature" aria-label="Firma familiar">
+  <div class="signature">
     <span class="sigAvatars" aria-hidden="true">
-      <img src="mama.png" alt="Mamá" loading="lazy" />
-      <img src="papa.png" alt="Papá" loading="lazy" />
-      <img src="nino.png" alt="Niño" loading="lazy" />
-      <img src="nina.png" alt="Niña" loading="lazy" />
+      <img src="papa.png" alt="Papá" loading="lazy">
+      <img src="mama.png" alt="Mamá" loading="lazy">
+      <img src="nino.png" alt="Hermano" loading="lazy">
+      <img src="nina.png" alt="Hermana" loading="lazy">
     </span>
-    <span>Con cariño, la familia de Valentina 💗</span>
+    <span class="text">Con cariño, la familia de Valentina 💗</span>
   </div>
 </footer>
 
