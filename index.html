@@ -39,9 +39,6 @@
 
       --softShadow: rgba(130, 92, 110, 0.16);
       --roseGold: rgba(217,167,182,.92);
-
-      /* ✅ SAFE TOP (se setea por JS en móvil) */
-      --safeTop: 0px;
     }
 
     *{ box-sizing:border-box; }
@@ -108,14 +105,6 @@
     @media (max-width: 980px){ .reserveRight{ padding-right: 0; } }
 
     header{ padding: 56px 0 14px; }
-
-    /* ✅ SAFE TOP: en móvil baja el header lo necesario para no chocar con conejabebe */
-    @media (max-width: 980px){
-      header{
-        padding-top: calc(16px + var(--safeTop));
-        padding-bottom: 14px;
-      }
-    }
 
     .hero{
       position: relative;
@@ -483,7 +472,7 @@
     footer{ margin-top: 22px; padding: 10px 0 0; text-align:center; color: var(--muted); font-size: 14px; }
     .tiny{ font-size: 13px; color: var(--muted); margin-top: 10px; font-style: italic; }
 
-    /* Conejita flotante */
+    /* Conejita flotante (SIEMPRE) */
     .bunnyDock{
       position: fixed;
       right: max(8px, calc((100vw - var(--container)) / 2 + 8px));
@@ -510,7 +499,7 @@
       position: relative;
       opacity: 0;
       transform: translateY(-4px) scale(.985);
-      transition: opacity .28s ease, transform .28s ease;
+      transition: opacity .28s ease, transform .28s ease; /* transición más premium */
       will-change: transform, opacity;
       text-align: center;
       padding-bottom: 2px;
@@ -618,14 +607,23 @@
     }
     .dust{ animation-duration: var(--dur); }
 
+    /* ✅ MÓVIL: coneja visible e integrada al hero (aprox 40% dentro) */
     @media (max-width: 980px){
-      .bunnyDock{ right: 12px; top: 12px; width: 150px; }
-      .bunnyLabel{ max-width: 160px; transform-origin: top center; }
-      body.show-bunny-label .bunnyLabel{ transform: translateY(0) scale(.98); }
+      .bunnyDock{
+        display: grid;   /* importante: NO ocultar */
+        right: 12px;
+        top: 152px;      /* ajusta este valor si quieres más/menos “dentro” */
+        width: 150px;
+      }
+
+      /* deja aire arriba para que no tape el Valentina del hero */
+      .hero{ padding-top: 44px; }
+
+      /* en móvil ocultamos el label bajo la coneja para no tapar */
+      .bunnyLabel{ display:none; }
     }
     @media (max-width: 420px){
-      .bunnyDock{ width: 132px; }
-      .bunnyLabel{ max-width: 145px; }
+      .bunnyDock{ top: 162px; width: 138px; }
     }
 
     .reveal{ opacity:0; transform: translateY(10px); transition: opacity .75s ease, transform .75s ease; }
@@ -645,7 +643,7 @@
 </head>
 
 <body>
-  <!-- Coneja flotante -->
+  <!-- Coneja flotante (SIEMPRE) -->
   <div class="bunnyDock" id="bunnyDock" aria-hidden="true">
     <img src="conejabebe.png" alt="Conejita con globos" />
     <div class="bunnyLabel valLabel" id="bunnyLabel">
@@ -703,9 +701,12 @@
                   </filter>
                 </defs>
 
+                <!-- cuerpo del pañal -->
                 <path filter="url(#sDiaper)" fill="url(#gDiaper)"
                   d="M4 6c0-1.1.9-2 2-2h12c1.1 0 2 .9 2 2v5c0 4-3.6 7-8 7s-8-3-8-7V6Z"/>
+                <!-- brillo -->
                 <path fill="url(#gDiaperHi)" d="M6 5h12v3H6z" opacity="0.9"/>
+                <!-- detalle central -->
                 <path fill="rgba(255,255,255,.92)" d="M9 12h6v2H9z"/>
               </svg>
               <span>Cover: Pañales 🧷</span>
@@ -914,64 +915,29 @@
       }
     });
 
-    // Parallax coneja (siempre visible)
+    // ✅ Parallax coneja (SIEMPRE: desktop + móvil)
     const bunnyDock = document.getElementById("bunnyDock");
     function bunnyParallax(){
       const y = window.scrollY || 0;
       const isMobile = window.matchMedia("(max-width: 980px)").matches;
-      const speed = 0.18;
-      const maxShift = isMobile ? 40 : 150;
+
+      const speed = isMobile ? 0.10 : 0.18;     // suave en móvil
+      const maxShift = isMobile ? 70 : 150;     // límite
       const shift = Math.min(maxShift, y * speed);
+
       bunnyDock.style.transform = `translateY(${-shift}px)`;
     }
     window.addEventListener("scroll", bunnyParallax, { passive:true });
     window.addEventListener("resize", bunnyParallax);
     bunnyParallax();
 
-    // ✅ SAFE TOP (Opción A): en móvil baja el header según el alto REAL de la imagen de la coneja
-    function setMobileSafeTop(){
-      const isMobile = window.matchMedia("(max-width: 980px)").matches;
-      if(!isMobile){
-        document.documentElement.style.setProperty("--safeTop", "0px");
-        return;
-      }
-
-      const dock = document.getElementById("bunnyDock");
-      const img = dock ? dock.querySelector("img") : null;
-      if(!dock || !img) return;
-
-      const topPx = parseFloat(getComputedStyle(dock).top) || 0;
-
-      // medimos SOLO la imagen para no “sobrereservar” por el label (que en hero no se muestra)
-      const imgRect = img.getBoundingClientRect();
-      const imgH = imgRect.height || 0;
-
-      // margen extra para respirar (premium)
-      const extra = 14;
-
-      const safe = Math.max(0, Math.round(topPx + imgH + extra));
-      document.documentElement.style.setProperty("--safeTop", safe + "px");
-    }
-
-    // Espera a que cargue la imagen para medir bien
-    window.addEventListener("load", () => {
-      setMobileSafeTop();
-      // por si el render tarda (fuentes/imagen), recalcula una vez más
-      setTimeout(setMobileSafeTop, 250);
-      setTimeout(setMobileSafeTop, 650);
-    });
-    window.addEventListener("resize", () => {
-      setMobileSafeTop();
-    });
-    window.addEventListener("orientationchange", () => {
-      setTimeout(setMobileSafeTop, 250);
-    });
-
-    // Mostrar Valentina bajo coneja solo cuando NO se ve el Valentina del hero
+    // Mostrar Valentina bajo coneja solo cuando NO se ve el Valentina del hero (desktop)
     const heroVal = document.getElementById("heroValentina");
     const io = new IntersectionObserver((entries) => {
       for(const entry of entries){
         const visible = entry.isIntersecting && entry.intersectionRatio > 0.18;
+
+        // En móvil el label está oculto por CSS; igual mantenemos la lógica para desktop
         document.body.classList.toggle("show-bunny-label", !visible);
 
         if(!visible){
