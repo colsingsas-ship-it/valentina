@@ -844,6 +844,21 @@ svg, img{
   }
 }
 
+/* 🎁 Botón "Lista de regalos" — mismo estilo + salto suave */
+.btnGift{
+  background: linear-gradient(90deg, var(--accent), var(--accent2));
+  color: white;
+  border-color: rgba(255,255,255,.35);
+  animation: giftBounce 2.8s ease-in-out infinite;
+}
+
+@keyframes giftBounce{
+  0%, 72%, 100%{ transform: translateY(0); }
+  78%{ transform: translateY(-4px); }
+  84%{ transform: translateY(0); }
+  90%{ transform: translateY(-1px); }
+}
+
 
 /* 👨‍👩‍👧‍👦 Firma con memojis (PNG) — centrado y en una sola línea */
 .signature{
@@ -1194,6 +1209,11 @@ footer{
                   Abrir Google Maps
                 </a>
 
+
+                <a class="btn btnGift" id="btnGifts" href="https://drive.google.com/file/d/1qfRlCpiJRCFrBaxjmLXXG-g8UNKgNVXZ/view?usp=drive_link" target="_blank" rel="noopener">
+                  🎁 Lista de regalos
+                </a>
+
                 <a class="btn" id="btnCopy" href="#" role="button">
                   <svg class="icon3d" viewBox="0 0 24 24" aria-hidden="true">
                     <defs>
@@ -1360,23 +1380,6 @@ footer{
   🎵 Música
 </button>
 
-<script>
-const music = document.getElementById("bgMusic");
-const toggle = document.getElementById("musicToggle");
-let playing = false;
-
-toggle.addEventListener("click", () => {
-  if(!playing){
-    music.volume = 0.35;
-    music.play();
-    toggle.textContent = "⏸ Pausar música";
-  }else{
-    music.pause();
-    toggle.textContent = "🎵 Música";
-  }
-  playing = !playing;
-});
-</script>
 
 
 <script>
